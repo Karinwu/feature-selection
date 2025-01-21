@@ -68,7 +68,7 @@ def query_training_data(
     SELECT
         *
     FROM
-        `{table_id}` p    
+        `{table_id}` p
     """
     if feeder_ids is None:
         return f"{select_join}"
