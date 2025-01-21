@@ -25,8 +25,8 @@ from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 
-import der_simulation_service.model.bess_constants as bc
-import der_simulation_service.model.adoption.queries as query
+import feature_selection.data.constants as bc
+import feature_selection.model.queries as query
 
 MODEL_OPTIONS = {
     "classification": {
@@ -76,10 +76,7 @@ def get_data_for_rfe(
     """
     ders = ["bess", "ev"]
     if der == "bess":
-        df = bc.query_training_data(feeders=feeders)
-        # filter residential storage adopters without PV systems from training and
-        # validation subsets
-        df = bc.residential_battery_assumption(df)
+        df = query.query_training_data(feeders=feeders)
     elif der == "ev":
         # EV specific query from queries.py
         df = query.query_premise_training_data(
@@ -93,7 +90,6 @@ def get_data_for_rfe(
             f"{der} is not valid. Must be one of:" f" {', '.join(ders)}"
         )
 
-    # drop rows with NULLs on features
     df = df.dropna()
     # split in sample matrix (X) and target values (y)
     X = df.loc[:, predictors]
