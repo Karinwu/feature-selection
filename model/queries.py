@@ -40,19 +40,21 @@ def query_premise_training_data(
             SELECT
             {index_col},
             {", ".join(adoption_feature_cols)},
-            FROM {premise_table}
-            WHERE res_nonres = c.RES
+            FROM {premise_table}            
             )
             SELECT * FROM TRAINING_SET{samples_clause}
             """
     else:
         raise KeyError(
-            f"{dataset} is not valid. Must be one of:" f" {', '.join(utilities)}"
+            f"{dataset} is not valid. Must be one of:"
+            f" {', '.join(utilities)}"
         )
 
     # download table from bigquery
     return (
-        pd.read_gbq(query, project_id="project", use_bqstorage_api=True)
+        pd.read_gbq(
+            query, project_id="project", use_bqstorage_api=True
+        )
         .drop_duplicates()
         .set_index(index_col)
     )
