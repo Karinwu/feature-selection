@@ -17,7 +17,7 @@ def query_premise_training_data(
     Args:
         adoption_feature_cols: adoption feature columns
         index_col: column to use as index. default set to "premise_id"
-        dataset: dataset to query. works for input_pge, input_sce, input_sdge
+        dataset: dataset to query.
         samples_frac: Optionally pass a fraction of samples to query
     """
     if index_col is None:
@@ -40,7 +40,7 @@ def query_premise_training_data(
             SELECT
             {index_col},
             {", ".join(adoption_feature_cols)},
-            FROM {premise_table}            
+            FROM {premise_table}     
             )
             SELECT * FROM TRAINING_SET{samples_clause}
             """
@@ -58,3 +58,32 @@ def query_premise_training_data(
         .drop_duplicates()
         .set_index(index_col)
     )
+
+
+def query_training_data(
+    feeders: Optional[Sequence[str]] = None
+) -> pd.DataFrame:
+    query = """
+        SELECT *
+        FROM project.dataset.table
+        WHERE feeders IN 
+        """
+      return pd.read_gbq(query, project_id="project", use_bqstorage_api=True)
+    
+def query_training_data(
+    utility_name: str,
+    feeder_ids: Optional[Sequence[str]] = None,
+) -> str:
+    table_id = f"project.input.feeders_data"
+    select_join = f"""
+    SELECT
+        *
+    FROM
+        `{table_id}` p    
+    """
+    if feeder_ids is None:
+        return f"{select_join}"
+    elif len(feeder_ids) == 1:
+        return f'{select_join} WHERE feeder_id = "{feeder_ids[0]}"'
+    else:
+        return f"{select_join} WHERE feeder_id IN {tuple(feeder_ids)}"
