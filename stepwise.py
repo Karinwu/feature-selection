@@ -3,7 +3,6 @@ import pandas as pd
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 
-
 def stepwise(
     dataset: pd.DataFrame,
     target: str,
@@ -38,10 +37,14 @@ def stepwise(
     excluded = list(set(covs) - set(included))
     while True:
         # Check the metric for the initial model
-        fml = f"{target} ~ " + " + ".join(included if included else "1")
+        fml = f"{target} ~ " + " + ".join(
+            included if included else "1"
+            )
         steps.at["<none>", param] = getattr(
-            method.from_formula(fml, dataset).fit_regularized(method="l1", disp=False),
-            param,
+            method.from_formula(fml, dataset).fit_regularized(
+                method='l1',
+                disp=False
+            ), param
         )
         steps.at["<none>", "operation"] = ""
         if verbose:
@@ -52,32 +55,27 @@ def stepwise(
         for col in included:
             tmp_included = [x for x in included if x != col]
             fml = f"{target} ~ " + " + ".join(
-                [
-                    f"C({feature})" if feature in categorical_cols else feature
-                    for feature in tmp_included
-                ]
-                if tmp_included
-                else "1"
+                [f'C({feature})' if feature in categorical_cols
+                else feature for feature in tmp_included]
+                if tmp_included else "1"
             )
             steps.at[col, param] = getattr(
                 method.from_formula(fml, dataset).fit_regularized(
-                    method="l1", disp=False
-                ),
-                param,
+                    method='l1',
+                    disp=False
+                ), param
             )
             steps.at[col, "operation"] = "-"
         for col in excluded:
             fml = f"{target} ~ " + " + ".join(
-                [
-                    f"C({feature})" if feature in categorical_cols else feature
-                    for feature in included + [col]
-                ]
+                [f"C({feature})" if feature in categorical_cols
+                else feature for feature in included + [col]]
             )
             steps.at[col, param] = getattr(
                 method.from_formula(fml, dataset).fit_regularized(
-                    method="l1", disp=False
-                ),
-                param,
+                    method='l1',
+                    disp=False
+                ), param
             )
             steps.at[col, "operation"] = "+"
 
@@ -109,14 +107,13 @@ def stepwise(
         else:
             if verbose:
                 final_input_features = " + ".join(
-                    [
-                        f"C({feature})" if feature in categorical_cols else feature
-                        for feature in included
-                    ]
-                    if included
-                    else "1"
+                    [f'C({feature})' if feature in categorical_cols
+                        else feature for feature in included]
+                        if included else "1"
+                        )
+                print(
+                    f'Final Model: {target} ~ {final_input_features}'
                 )
-                print(f"Final Model: {target} ~ {final_input_features}")
             break
         if verbose:
             print("=================================================")
