@@ -16,8 +16,8 @@ from sklearn.linear_model import LogisticRegression, Perceptron
 from sklearn.model_selection import (
     cross_val_score,
     RepeatedStratifiedKFold,
-    train_test_split
-    )
+    train_test_split,
+)
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
@@ -46,10 +46,7 @@ MODEL_OPTIONS = {
 dir_path = os.path.dirname(os.path.realpath(__file__)) + "/feature_plots"
 if not os.path.exists(dir_path):
     os.makedirs(dir_path)
-STATS_MODEL = {
-    "smf_logit": smf.logit,
-    "discrete_Logit": sm.Logit
-    }
+STATS_MODEL = {"smf_logit": smf.logit, "discrete_Logit": sm.Logit}
 
 
 def get_data_for_rfe(
@@ -86,9 +83,7 @@ def get_data_for_rfe(
             samples_frac=samples_frac,
         )
     else:
-        raise KeyError(
-            f"{der} is not valid. Must be one of:" f" {', '.join(ders)}"
-        )
+        raise KeyError(f"{der} is not valid. Must be one of:" f" {', '.join(ders)}")
 
     df = df.dropna()
     # split in sample matrix (X) and target values (y)
@@ -102,30 +97,22 @@ def get_data_for_rfe(
     return X, y
 
 
-def encode_categoricals(
-    input_df: pd.DataFrame, cat_cols: List[str]
-) -> pd.DataFrame:
+def encode_categoricals(input_df: pd.DataFrame, cat_cols: List[str]) -> pd.DataFrame:
     """
     Apply OneHotEncoder on a list of categorical columns.
     Returns a dataframe with categorical features encoded.
     """
     ohe = OneHotEncoder(drop="first").fit(input_df[cat_cols])
-    for num_elems, (cat_col, categories) in enumerate(
-        zip(cat_cols, ohe.categories_)
-    ):
+    for num_elems, (cat_col, categories) in enumerate(zip(cat_cols, ohe.categories_)):
         elems = len(categories)
 
         if elems == 2:
             cat_dict = {c: i for i, c in enumerate(categories)}
-            print(
-                f"column {cat_col} is binary and has been encoded as {cat_dict}"
-            )
+            print(f"column {cat_col} is binary and has been encoded as {cat_dict}")
         else:
             # note that the first category is dropped
             columns = ohe.categories_[num_elems][1:]
-            print(
-                f"column {cat_col} has created the following columns: {columns}"
-            )
+            print(f"column {cat_col} has created the following columns: {columns}")
     output = ohe.transform(input_df[cat_cols]).toarray()
     new_column_names = ohe.get_feature_names_out(ohe.feature_names_in_)
     return pd.DataFrame(data=output, columns=new_column_names)
@@ -332,14 +319,10 @@ def stepwise(
     excluded = list(set(covs) - set(included))
     while True:
         # Check the metric for the initial model
-        fml = f"{target} ~ " + " + ".join(
-            included if included else "1"
-            )
+        fml = f"{target} ~ " + " + ".join(included if included else "1")
         steps.at["<none>", param] = getattr(
-            method.from_formula(fml, dataset).fit_regularized(
-                method='l1',
-                disp=False
-            ), param
+            method.from_formula(fml, dataset).fit_regularized(method="l1", disp=False),
+            param,
         )
         steps.at["<none>", "operation"] = ""
         if verbose:
@@ -350,27 +333,32 @@ def stepwise(
         for col in included:
             tmp_included = [x for x in included if x != col]
             fml = f"{target} ~ " + " + ".join(
-                [f'C({feature})' if feature in categorical_cols
-                else feature for feature in tmp_included]
-                if tmp_included else "1"
+                [
+                    f"C({feature})" if feature in categorical_cols else feature
+                    for feature in tmp_included
+                ]
+                if tmp_included
+                else "1"
             )
             steps.at[col, param] = getattr(
                 method.from_formula(fml, dataset).fit_regularized(
-                    method='l1',
-                    disp=False
-                ), param
+                    method="l1", disp=False
+                ),
+                param,
             )
             steps.at[col, "operation"] = "-"
         for col in excluded:
             fml = f"{target} ~ " + " + ".join(
-                [f"C({feature})" if feature in categorical_cols
-                else feature for feature in included + [col]]
+                [
+                    f"C({feature})" if feature in categorical_cols else feature
+                    for feature in included + [col]
+                ]
             )
             steps.at[col, param] = getattr(
                 method.from_formula(fml, dataset).fit_regularized(
-                    method='l1',
-                    disp=False
-                ), param
+                    method="l1", disp=False
+                ),
+                param,
             )
             steps.at[col, "operation"] = "+"
 
@@ -402,13 +390,14 @@ def stepwise(
         else:
             if verbose:
                 final_input_features = " + ".join(
-                    [f'C({feature})' if feature in categorical_cols
-                        else feature for feature in included]
-                        if included else "1"
-                        )
-                print(
-                    f'Final Model: {target} ~ {final_input_features}'
+                    [
+                        f"C({feature})" if feature in categorical_cols else feature
+                        for feature in included
+                    ]
+                    if included
+                    else "1"
                 )
+                print(f"Final Model: {target} ~ {final_input_features}")
             break
         if verbose:
             print("=================================================")
@@ -498,7 +487,7 @@ if __name__ == "__main__":
         test_size=test_size,
         random_state=config.get("split_random_state"),
         stratify=y,
-        )
+    )
 
     if method_name == "rfe":
         rfe_params = config["method"]["rfe"]
@@ -518,20 +507,17 @@ if __name__ == "__main__":
         if function_name == "determine_num_features":
             params = function["determine_num_features"]
             determine_num_features(
-                features=X_train, target=y_train,
-                estimator=estimator, **params
+                features=X_train, target=y_train, estimator=estimator, **params
             )
         elif function_name == "report_rfe_feature_details":
             params = function["report_rfe_feature_details"]
             report_rfe_feature_details(
-                features=X_train, target=y_train,
-                estimator=estimator, **params
+                features=X_train, target=y_train, estimator=estimator, **params
             )
         elif function_name == "test_rfe_across_models":
             params = function["test_rfe_across_models"]
             test_rfe_across_models(
-                features=X_train, target=y_train,
-                model_options=model_options, **params
+                features=X_train, target=y_train, model_options=model_options, **params
             )
         else:
             print(
