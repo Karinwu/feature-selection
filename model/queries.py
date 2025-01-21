@@ -61,20 +61,9 @@ def query_premise_training_data(
 
 
 def query_training_data(
-    feeders: Optional[Sequence[str]] = None
-) -> pd.DataFrame:
-    query = """
-        SELECT *
-        FROM project.dataset.table
-        WHERE feeders IN 
-        """
-      return pd.read_gbq(query, project_id="project", use_bqstorage_api=True)
-    
-def query_training_data(
-    utility_name: str,
     feeder_ids: Optional[Sequence[str]] = None,
 ) -> str:
-    table_id = f"project.input.feeders_data"
+    table_id = "project.input.feeders_data"
     select_join = f"""
     SELECT
         *
