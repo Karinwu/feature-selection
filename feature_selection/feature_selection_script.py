@@ -444,7 +444,7 @@ if __name__ == "__main__":
         type=str,
         metavar="",
         help="path to yaml configuration file. Example of yaml doc located at"
-        "reference/bess/features_selection_config.yaml",
+        "reference/features_selection_config.yaml",
     )
     args = parser.parse_args()
 
