@@ -25,7 +25,7 @@ def stepwise(
         included: The covariates to start the method with, can only contain
             elements in the covs list. Can be empty.
         param: The parameter to base the stepwise regression on.
-            Can be one of "aic", "bic", "prsquared".
+            Can be one of "aic", "bic", "rsquared".
         verbose: Whether or not to print updates along the way.
 
     Returns:
